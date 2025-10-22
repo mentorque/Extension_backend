@@ -17,6 +17,11 @@ const uploadResumeController = require('./controllers/uploadResume');
 const appliedJobsController = require('./controllers/appliedJobs');
 
 // Public routes (no auth required)
+// Health check
+router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 router.post('/auth/validate', authenticateApiKey, authController.validateApiKey);
 
 // Protected routes (require API key)
