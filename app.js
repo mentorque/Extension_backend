@@ -41,6 +41,16 @@ app.use((req, res, next) => {
   const startTime = Date.now();
   const originalSend = res.send;
   
+  // Log request details for debugging
+  console.log(`[REQUEST_DEBUG] ${req.method} ${req.path}`, {
+    contentType: req.get('Content-Type'),
+    contentLength: req.get('Content-Length'),
+    hasBody: !!req.body,
+    bodyType: typeof req.body,
+    bodyKeys: req.body ? Object.keys(req.body) : 'no body',
+    rawBody: req.body
+  });
+  
   res.send = function(data) {
     const duration = Date.now() - startTime;
     console.log(`[REQUEST] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`, {

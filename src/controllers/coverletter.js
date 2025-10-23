@@ -27,16 +27,32 @@ function extractJSONFromString(input) {
 
 const generateCoverLetter = async (req, res, next) => {
   try {
+    console.log('[COVERLETTER] Request body:', {
+      hasJobDescription: !!req.body?.jobDescription,
+      hasResume: !!req.body?.resume,
+      jobDescriptionLength: req.body?.jobDescription?.length || 0,
+      resumeKeys: req.body?.resume ? Object.keys(req.body.resume) : 'not object',
+      bodyKeys: Object.keys(req.body || {}),
+      contentType: req.headers['content-type']
+    });
+    
     const { jobDescription, resume } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: gemini_flash });
 
     if (!apiKey) {
+      console.error('[COVERLETTER] Missing GEMINI_API_KEY');
       return res.status(500).json({ error: 'Server configuration error: API key is missing.' });
     }
 
     if (!jobDescription || !resume) {
+      console.error('[COVERLETTER] Missing required fields:', {
+        hasJobDescription: !!jobDescription,
+        hasResume: !!resume,
+        jobDescription: jobDescription ? 'present' : 'missing',
+        resume: resume ? 'present' : 'missing'
+      });
       return res.status(400).json({ error: 'Missing or invalid jobDescription or resume' });
     }
     const resumeString = JSON.stringify(resume);

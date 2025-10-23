@@ -40,7 +40,7 @@ const generateExperience = async (req, res, next) => {
     }
 
     const experienceString = JSON.stringify(experience);
-    const fullPrompt = `${SYSTEM_PROMPT}\n Job Description:\n${jobDescription}\n Experience:\n${experienceString}\nRespnse Format:${EXPERIENCE_SCHEMA}`;
+    const fullPrompt = `${SYSTEM_PROMPT}\n Job Description:\n${jobDescription}\n Experience:\n${experienceString}\nResponse Format:${EXPERIENCE_SCHEMA}`;
 
     const aiResult = await model.generateContent(fullPrompt);
     const response = aiResult.response;

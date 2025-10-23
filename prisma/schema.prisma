@@ -1,4 +1,3 @@
-// This is your Prisma schema file
 generator client {
   provider      = "prisma-client-js"
   output        = "../generated/prisma"
@@ -11,54 +10,62 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  firebaseUid   String    @unique
-  email         String    @unique
-  fullName      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  // Relations
-  apiKeys       ApiKey[]
-  appliedJobs   AppliedJob[]
-  
+  id          String       @id @default(cuid())
+  firebaseUid String       @unique
+  email       String       @unique
+  fullName    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  apiKeys     ApiKey[]
+  appliedJobs AppliedJob[]
+  Progress    Progress?
+
   @@index([firebaseUid])
   @@index([email])
 }
 
 model ApiKey {
-  id          String    @id @default(cuid())
-  key         String    @unique
-  name        String
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime  @default(now())
-  lastUsedAt  DateTime?
-  isActive    Boolean   @default(true)
-  
+  id         String    @id @default(cuid())
+  key        String    @unique
+  name       String
+  userId     String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  isActive   Boolean   @default(true)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([key])
   @@index([userId])
   @@index([isActive])
 }
 
 model AppliedJob {
-  id            String    @id @default(cuid())
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  title         String
-  company       String?
-  location      String?
-  url           String
-  appliedDate   DateTime  @default(now())
-  appliedText   String?
-  status        String    @default("Applied")
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  company     String?
+  location    String?
+  url         String
+  appliedDate DateTime @default(now())
+  appliedText String?
+  status      String   @default("Applied")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  type        String   @default("Website")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([status])
-  @@unique([userId, url])
+  @@index([type])
+}
+
+model Progress {
+  id        String   @id
+  userId    String   @unique
+  weeks     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

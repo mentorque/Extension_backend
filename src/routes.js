@@ -22,7 +22,8 @@ router.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-router.post('/auth/validate', authenticateApiKey, authController.validateApiKey);
+// Public API key validation endpoint (no auth required)
+router.post('/auth/validate', authController.validateApiKeyPublic);
 
 // Protected routes (require API key)
 router.use(authenticateApiKey); // Apply auth middleware to all routes below

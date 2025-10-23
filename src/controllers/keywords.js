@@ -39,17 +39,33 @@ function extractJSONFromString(input) {
 
 const generateKeywords = async (req, res, next) => {
   try {
-    console.log(req.body);
+    console.log('[KEYWORDS] Request body:', {
+      hasJobDescription: !!req.body?.jobDescription,
+      hasSkills: !!req.body?.skills,
+      jobDescriptionLength: req.body?.jobDescription?.length || 0,
+      skillsLength: Array.isArray(req.body?.skills) ? req.body.skills.length : 'not array',
+      bodyKeys: Object.keys(req.body || {}),
+      contentType: req.headers['content-type'],
+      rawBody: req.body
+    });
+    
     const { jobDescription, skills } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: gemini_flash });
 
     if (!apiKey) {
+      console.error('[KEYWORDS] Missing GEMINI_API_KEY');
       return res.status(500).json({ error: 'Server configuration error: API key is missing.' });
     }
 
     if (!jobDescription || !skills) {
+      console.error('[KEYWORDS] Missing required fields:', {
+        hasJobDescription: !!jobDescription,
+        hasSkills: !!skills,
+        jobDescription: jobDescription ? 'present' : 'missing',
+        skills: skills ? 'present' : 'missing'
+      });
       return res.status(400).json({ error: 'Missing or invalid jobDescription or skills' });
     }
 

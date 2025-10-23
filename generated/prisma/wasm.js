@@ -122,12 +122,25 @@ exports.Prisma.AppliedJobScalarFieldEnum = {
   appliedText: 'appliedText',
   status: 'status',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  type: 'type'
+};
+
+exports.Prisma.ProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  weeks: 'weeks',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -140,11 +153,18 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
 
 exports.Prisma.ModelName = {
   User: 'User',
   ApiKey: 'ApiKey',
-  AppliedJob: 'AppliedJob'
+  AppliedJob: 'AppliedJob',
+  Progress: 'Progress'
 };
 /**
  * Create the Client
@@ -198,13 +218,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id          String   @id @default(cuid())\n  firebaseUid String   @unique\n  email       String   @unique\n  fullName    String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  // Relations\n  apiKeys     ApiKey[]\n  appliedJobs AppliedJob[]\n\n  @@index([firebaseUid])\n  @@index([email])\n}\n\nmodel ApiKey {\n  id     String @id @default(cuid())\n  key    String @unique\n  name   String\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  createdAt  DateTime  @default(now())\n  lastUsedAt DateTime?\n  isActive   Boolean   @default(true)\n\n  @@index([key])\n  @@index([userId])\n  @@index([isActive])\n}\n\nmodel AppliedJob {\n  id     String @id @default(cuid())\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  title       String\n  company     String?\n  location    String?\n  url         String\n  appliedDate DateTime @default(now())\n  appliedText String?\n  status      String   @default(\"Applied\")\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([userId, url])\n  @@index([userId])\n  @@index([status])\n}\n",
-  "inlineSchemaHash": "ca902e9629ba45f0aeec7625b6612a62925b9c26e7eebbcc1523a11bde327c61",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id          String       @id @default(cuid())\n  firebaseUid String       @unique\n  email       String       @unique\n  fullName    String?\n  createdAt   DateTime     @default(now())\n  updatedAt   DateTime     @updatedAt\n  apiKeys     ApiKey[]\n  appliedJobs AppliedJob[]\n  Progress    Progress?\n\n  @@index([firebaseUid])\n  @@index([email])\n}\n\nmodel ApiKey {\n  id         String    @id @default(cuid())\n  key        String    @unique\n  name       String\n  userId     String\n  createdAt  DateTime  @default(now())\n  lastUsedAt DateTime?\n  isActive   Boolean   @default(true)\n  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([key])\n  @@index([userId])\n  @@index([isActive])\n}\n\nmodel AppliedJob {\n  id          String   @id @default(cuid())\n  userId      String\n  title       String\n  company     String?\n  location    String?\n  url         String\n  appliedDate DateTime @default(now())\n  appliedText String?\n  status      String   @default(\"Applied\")\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n  type        String   @default(\"Website\")\n  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n  @@index([status])\n  @@index([type])\n}\n\nmodel Progress {\n  id        String   @id\n  userId    String   @unique\n  weeks     Json\n  createdAt DateTime @default(now())\n  updatedAt DateTime\n  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n}\n",
+  "inlineSchemaHash": "991f7d159443e0281668e0f031cfdfce352d6f0d58aebca04e91f3d6a20f154e",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"firebaseUid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"apiKeys\",\"kind\":\"object\",\"type\":\"ApiKey\",\"relationName\":\"ApiKeyToUser\"},{\"name\":\"appliedJobs\",\"kind\":\"object\",\"type\":\"AppliedJob\",\"relationName\":\"AppliedJobToUser\"}],\"dbName\":null},\"ApiKey\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ApiKeyToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastUsedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"AppliedJob\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AppliedJobToUser\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"company\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"appliedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"appliedText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"firebaseUid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"apiKeys\",\"kind\":\"object\",\"type\":\"ApiKey\",\"relationName\":\"ApiKeyToUser\"},{\"name\":\"appliedJobs\",\"kind\":\"object\",\"type\":\"AppliedJob\",\"relationName\":\"AppliedJobToUser\"},{\"name\":\"Progress\",\"kind\":\"object\",\"type\":\"Progress\",\"relationName\":\"ProgressToUser\"}],\"dbName\":null},\"ApiKey\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastUsedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ApiKeyToUser\"}],\"dbName\":null},\"AppliedJob\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"company\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"appliedDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"appliedText\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AppliedJobToUser\"}],\"dbName\":null},\"Progress\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"weeks\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"User\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ProgressToUser\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

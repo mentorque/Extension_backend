@@ -150,12 +150,25 @@ exports.Prisma.AppliedJobScalarFieldEnum = {
   appliedText: 'appliedText',
   status: 'status',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  type: 'type'
+};
+
+exports.Prisma.ProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  weeks: 'weeks',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -168,11 +181,18 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
 
 exports.Prisma.ModelName = {
   User: 'User',
   ApiKey: 'ApiKey',
-  AppliedJob: 'AppliedJob'
+  AppliedJob: 'AppliedJob',
+  Progress: 'Progress'
 };
 
 /**
