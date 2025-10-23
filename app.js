@@ -12,6 +12,31 @@ const app = express();
 // Middleware
 app.use(helmet());
 app.use(cors());
+
+// Custom request logging middleware for performance tracking
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  const originalSend = res.send;
+  
+  res.send = function(data) {
+    const duration = Date.now() - startTime;
+    console.log(`[REQUEST] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`, {
+      userAgent: req.get('User-Agent')?.substring(0, 50) + '...',
+      contentLength: res.get('Content-Length') || 'unknown',
+      timestamp: new Date().toISOString()
+    });
+    
+    // Log slow requests (>1 second)
+    if (duration > 1000) {
+      console.warn(`[SLOW_REQUEST] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms) - This request took longer than 1 second`);
+    }
+    
+    originalSend.call(this, data);
+  };
+  
+  next();
+});
+
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -40,17 +65,60 @@ app.use((err, req, res, next) => {
 
 // Centralized error handling
 app.use((err, req, res, next) => {
-  console.error("An error occurred:", err);
+  const timestamp = new Date().toISOString();
+  const requestInfo = {
+    method: req.method,
+    path: req.path,
+    userAgent: req.get('User-Agent'),
+    ip: req.ip || req.connection.remoteAddress,
+    headers: {
+      'x-api-key': req.headers['x-api-key'] ? 'present' : 'missing',
+      'content-type': req.headers['content-type'],
+      'content-length': req.headers['content-length']
+    },
+    body: req.body ? {
+      hasBody: true,
+      bodyType: typeof req.body,
+      bodyKeys: Object.keys(req.body || {}),
+      bodySize: JSON.stringify(req.body || {}).length
+    } : { hasBody: false }
+  };
+
+  console.error(`[ERROR] ${timestamp} - ${req.method} ${req.path}:`, {
+    message: err.message,
+    stack: err.stack,
+    code: err.code,
+    name: err.name,
+    request: requestInfo
+  });
 
   const msg = err.message || 'An unexpected error occurred';
 
   if (msg.includes('API key')) {
+    console.log(`[ERROR] API key error for ${req.method} ${req.path}`);
     return res.status(401).json({ error: 'Invalid API key', message: msg });
   }
 
   if (msg.includes('quota') || msg.includes('rate limit')) {
+    console.log(`[ERROR] Rate limit error for ${req.method} ${req.path}`);
     return res.status(429).json({ error: 'Rate limit exceeded', message: msg });
   }
+
+  if (err.code === 'P2002') {
+    console.log(`[ERROR] Database unique constraint violation for ${req.method} ${req.path}`);
+    return res.status(409).json({ error: 'Duplicate entry', message: 'A record with this information already exists' });
+  }
+
+  if (err.code === 'P2025') {
+    console.log(`[ERROR] Database record not found for ${req.method} ${req.path}`);
+    return res.status(404).json({ error: 'Record not found', message: 'The requested record could not be found' });
+  }
+
+  console.log(`[ERROR] Unhandled error for ${req.method} ${req.path}:`, {
+    errorType: 'unhandled',
+    message: msg,
+    code: err.code
+  });
 
   res.status(500).json({ error: 'Internal server error', message: msg });
 });
