@@ -11,7 +11,30 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+
+// Enhanced CORS configuration for browser extension
+app.use(cors({
+  origin: [
+    'chrome-extension://*',
+    'moz-extension://*',
+    'safari-extension://*',
+    'http://localhost:*',
+    'https://localhost:*',
+    'https://platform-frontend-gamma-two.vercel.app',
+    'https://extensionbackend-production-cf91.up.railway.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'x-api-key',
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
+  exposedHeaders: ['x-api-key']
+}));
 
 // Custom request logging middleware for performance tracking
 app.use((req, res, next) => {
@@ -44,7 +67,22 @@ app.use(express.text({ type: 'text/plain', limit: '10mb' }));
 
 // Public health check (no auth)
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    version: process.env.npm_package_version || '1.0.0'
+  });
+});
+
+// Additional health check for API endpoints
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok',
+    api: 'running',
+    timestamp: new Date().toISOString(),
+    cors: 'enabled'
+  });
 });
 
 // Routes - CHANGED THIS LINE
