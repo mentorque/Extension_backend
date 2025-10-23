@@ -60,12 +60,10 @@ const addAppliedJob = async (req, res) => {
     }
 
     // Check if job already exists for this user
-    const existing = await prisma.appliedJob.findUnique({
+    const existing = await prisma.appliedJob.findFirst({
       where: {
-        userId_url: {
-          userId,
-          url
-        }
+        userId,
+        url
       }
     });
 

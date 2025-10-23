@@ -5940,6 +5940,7 @@ export namespace Prisma {
 
   export type AppliedJobWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    userId_url?: AppliedJobUserIdUrlCompoundUniqueInput
     AND?: AppliedJobWhereInput | AppliedJobWhereInput[]
     OR?: AppliedJobWhereInput[]
     NOT?: AppliedJobWhereInput | AppliedJobWhereInput[]
@@ -5955,7 +5956,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"AppliedJob"> | Date | string
     type?: StringFilter<"AppliedJob"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id">
+  }, "id" | "userId_url">
 
   export type AppliedJobOrderByWithAggregationInput = {
     id?: SortOrder
@@ -6570,6 +6571,11 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type AppliedJobUserIdUrlCompoundUniqueInput = {
+    userId: string
+    url: string
   }
 
   export type AppliedJobCountOrderByAggregateInput = {

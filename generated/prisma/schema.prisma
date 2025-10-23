@@ -54,6 +54,7 @@ model AppliedJob {
   type        String   @default("Website")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, url])
   @@index([userId])
   @@index([status])
   @@index([type])
